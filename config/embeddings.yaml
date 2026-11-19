@@ -1,0 +1,8 @@
+SIGNATURE:
+    level: 3
+    log: False
+
+
+BVAE:
+    latent_dim: 8
+    enc_dims: [128,128,128]

@@ -1,0 +1,11 @@
+PSETS:
+  NCI60:
+    name: "NCI60_2026"
+  
+  CTRPv2:
+    name: "CTRPv2_2015"
+
+
+HDD:
+  dir: "HDD"
+  colData: "https://zenodo.org/records/22133259/files/colData.tsv?download=1"
