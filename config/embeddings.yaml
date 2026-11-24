@@ -3,6 +3,10 @@ SIGNATURE:
     log: False
 
 
+
+DRC:
+    FIELDS: ["aac_recomputed", "IC50", "HS" , "E0", "E_inf"]
+    
 BVAE:
     latent_dim: 8
     enc_dims: [128,128,128]

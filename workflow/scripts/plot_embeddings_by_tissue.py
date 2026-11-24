@@ -1,3 +1,4 @@
+import sys
 import matplotlib.pyplot as plt
 import seaborn as sns
 import umap
@@ -15,6 +16,48 @@ def process_atc_code(code_string: str, level: int = 4) -> str:
     return "".join(result[:level])
 
 
+
+print("Reading data\n")
+data = pd.read_csv(dirs.PROCDATA / "NCI60/fit_params.csv",index_col=0)
+
+
+SUBSETS = {
+    "Full":["GI50","TGI","LC50","HS","E0","E_inf","EC50","aac_recomputed","ic50_recomputed","Rsq"],
+    "Curve":["HS","E0","E_inf"],
+    "Viability":["aac_recomputed","ic50_recomputed"],
+    "Curve+Viability":["HS","E0","E_inf","aac_recomputed","ic50_recomputed"]
+}
+
+
+KEEP_CODES = ['BRE','COL','LNS','SCL','OVA','PRO']
+reducer = umap.UMAP(random_state=42)
+
+for subset, cols in SUBSETS.items():
+    
+    keep_cols =['treatmentid']+ cols + ['PANEL_CODE']
+    
+    temp = data[keep_cols]
+    print(temp.shape)
+    temp = temp.dropna(subset=keep_cols)
+    temp = temp[temp['PANEL_CODE'].isin(KEEP_CODES)]
+    temp = temp.groupby(['treatmentid','PANEL_CODE'])[cols].mean().reset_index()
+    
+    X = temp[cols].values 
+    
+    
+    X = StandardScaler().fit_transform(X)
+    print(X.shape)
+    print("Starting UMAP\n")
+    UM = reducer.fit_transform(X)
+    plot_df = pd.DataFrame({'UMAP-1':UM[:,0], 
+                            'UMAP-2':UM[:,1],
+                            'Tissue':temp['PANEL_CODE'].values})
+    ax =  sns.scatterplot(plot_df,x='UMAP-1',y='UMAP-2',hue='Tissue',legend=True)
+    sns.move_legend(ax, "upper left", bbox_to_anchor=(1.02, 1))
+    plt.title(f" Embeddings vs. Tissue")
+    plt.tight_layout()
+    plt.show()
+sys.exit()
 colData = pd.read_csv(dirs.RAWDATA / "HDD/colData.tsv",
                       sep="\t",
                       usecols =  ["HDD.Compound.ID", "Pubchem.CID", "Mechanism.of.Action","ATC.Code"])
